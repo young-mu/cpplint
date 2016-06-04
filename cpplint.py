@@ -5905,6 +5905,9 @@ def ProcessFile(filename, vlevel, extra_check_functions=[]):
                            arguments: filename, clean_lines, line, error
   """
 
+  if os.path.basename(filename) == 'CPPLINT.cfg':
+    return
+
   _SetVerboseLevel(vlevel)
   _BackupFilters()
 
