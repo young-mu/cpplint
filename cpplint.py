@@ -4579,6 +4579,7 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension,
                    the current stack of nested blocks being parsed.
     error: The function to call with any errors found.
   """
+
   # If the line is empty or consists of entirely a comment, no need to
   # check it.
   line = clean_lines.elided[linenum]
@@ -4600,7 +4601,7 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension,
   fullname = os.path.abspath(filename).replace('\\', '/')
 
   # Perform other checks now that we are sure that this is not an include line
-  CheckCasts(filename, clean_lines, linenum, error)
+  CheckCasts(filename, clean_lines, linenum, file_extension, error)
   CheckGlobalStatic(filename, clean_lines, linenum, error)
   CheckPrintf(filename, clean_lines, linenum, error)
 
@@ -5029,13 +5030,14 @@ def CheckForNonConstReference(filename, clean_lines, linenum,
             ReplaceAll(' *<', '<', parameter))
 
 
-def CheckCasts(filename, clean_lines, linenum, error):
+def CheckCasts(filename, clean_lines, linenum, file_extension, error):
   """Various cast related checks.
 
   Args:
     filename: The name of the current file.
     clean_lines: A CleansedLines instance containing the file.
     linenum: The number of the line to check.
+    file_extension: The extension (without the dot) of the filename.
     error: The function to call with any errors found.
   """
   line = clean_lines.elided[linenum]
@@ -5102,8 +5104,10 @@ def CheckCasts(filename, clean_lines, linenum, error):
     pass
   else:
     # Check pointer casts for other than string constants
-    CheckCStyleCast(filename, clean_lines, linenum, 'reinterpret_cast',
-                    r'\((\w+\s?\*+\s?)\)', error)
+    # ignore C style cast check if it's a C source file
+    if file_extension != 'c':
+        CheckCStyleCast(filename, clean_lines, linenum, 'reinterpret_cast',
+                        r'\((\w+\s?\*+\s?)\)', error)
 
   # In addition, we look for people taking the address of a cast.  This
   # is dangerous -- casts can assign to temporaries, so the pointer doesn't
