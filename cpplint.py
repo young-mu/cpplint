@@ -3195,20 +3195,32 @@ def CheckSpacing(filename, clean_lines, linenum, nesting_state, error):
   # * should be close to function or variable name
   if Search(r'\*', line):
     if Match(r'(.*)\*\s([_a-zA-Z]\w*.*)$', line):
-      error(filename, linenum, 'whitespace/space', 2,
+      error(filename, linenum, 'whitespace/space', 5,
             '* should be close to function or variable name')
 
   # * should not be close to varibale type when casting
   if Search(r'\(.*\*\)', line):
     if Match(r'^.*\([_a-zA-Z]\w*\*\).*$', line):
-      error(filename, linenum, 'whitespace/space', 2,
+      error(filename, linenum, 'whitespace/space', 5,
             '* should not be close to variable type when casting')
 
   # there should not be any spaces after ) when casting
-  if Search(r'\=\s\(.*\)', line):
+  if Search(r'=\s\(.*\)', line):
     if Match(r'^.*=\s\(.*\)\s([_a-zA-Z]\w*).*$', line):
-      error(filename, linenum, 'whitespace/space', 2,
+      error(filename, linenum, 'whitespace/space', 5,
             'there should not be any spaces after ) when casting');
+
+  # there should be spaces inside {} when array initilizing
+  if Search(r'{.*}', line):
+    if Match(r'^.*{\S+.*\S+}.*$', line):
+      error(filename, linenum, 'whitespace/parens', 5,
+            'there should be spaces inside {} when array initilizing');
+
+  # there should not be spaces inside sizeof()
+  if Search(r'sizeof\(.*\)', line):
+    if Match(r'^.*sizeof\((\s.*\s|\s.*|.*\s)\).*$', line):
+      error(filename, linenum, 'whitespace/parens', 5,
+            'there should not be spaces inside sizeof()');
 
 
 def CheckOperatorSpacing(filename, clean_lines, linenum, error):
