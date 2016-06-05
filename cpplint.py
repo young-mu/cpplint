@@ -3222,6 +3222,11 @@ def CheckSpacing(filename, clean_lines, linenum, nesting_state, error):
       error(filename, linenum, 'whitespace/parens', 5,
             'there should not be spaces inside sizeof()');
 
+  # there should not be spaces inside array operator []
+  if Search(r'\[.+\]', line):
+    if Match(r'^.*\[(\s.*\s|\s.*|.*\s)\].*$', line):
+      error(filename, linenum, 'whitespace/parens', 5,
+            'there should not be spaces inside array operator []');
 
 def CheckOperatorSpacing(filename, clean_lines, linenum, error):
   """Checks for horizontal spacing around operators.
