@@ -1762,6 +1762,11 @@ def CheckForHeaderGuard(filename, clean_lines, error):
     error: The function to call with any errors found.
   """
 
+  # ignore check if '#pragma once' in the first line
+  first_line = clean_lines.elided[1]
+  if first_line.startswith('#pragma once'):
+    return
+
   # Don't check for header guards if there are error suppression
   # comments somewhere in this file.
   #
