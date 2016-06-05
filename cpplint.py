@@ -3192,6 +3192,24 @@ def CheckSpacing(filename, clean_lines, linenum, nesting_state, error):
     error(filename, linenum, 'whitespace/forcolon', 2,
           'Missing space around colon in range-based for loop')
 
+  # * should be close to function or variable name
+  if Search(r'\*', line):
+    if Match(r'(.*)\*\s([_a-zA-Z]\w*.*)$', line):
+      error(filename, linenum, 'whitespace/space', 2,
+            '* should be close to function or variable name')
+
+  # * should not be close to varibale type when casting
+  if Search(r'\(.*\*\)', line):
+    if Match(r'^.*\([_a-zA-Z]\w*\*\).*$', line):
+      error(filename, linenum, 'whitespace/space', 2,
+            '* should not be close to variable type when casting')
+
+  # there should not be any spaces after ) when casting
+  if Search(r'\=\s\(.*\)', line):
+    if Match(r'^.*=\s\(.*\)\s([_a-zA-Z]\w*).*$', line):
+      error(filename, linenum, 'whitespace/space', 2,
+            'there should not be any spaces after ) when casting');
+
 
 def CheckOperatorSpacing(filename, clean_lines, linenum, error):
   """Checks for horizontal spacing around operators.
