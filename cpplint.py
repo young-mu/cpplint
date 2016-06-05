@@ -4253,13 +4253,13 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, nesting_state,
   # (of lines ending in double quotes, commas, equals, or angle brackets)
   # because the rules for how to indent those are non-trivial.
   if (not Search(r'[",=><] *$', prev) and
-      (initial_spaces == 1 or initial_spaces == 3) and
+      (initial_spaces % 4 != 0) and
       not Match(scope_or_label_pattern, cleansed_line) and
       not (clean_lines.raw_lines[linenum] != line and
            Match(r'^\s*""', line))):
     error(filename, linenum, 'whitespace/indent', 3,
           'Weird number of spaces at line-start.  '
-          'Are you using a 2-space indent?')
+          'Are you using a 4-space indent?')
 
   if line and line[-1].isspace():
     error(filename, linenum, 'whitespace/end_of_line', 4,
