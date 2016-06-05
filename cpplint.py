@@ -3228,6 +3228,19 @@ def CheckSpacing(filename, clean_lines, linenum, nesting_state, error):
       error(filename, linenum, 'whitespace/parens', 5,
             'there should not be spaces inside array operator []');
 
+  # there should not be spaces inside array operator []
+  if Search(r'\[.+\]', line):
+    if Match(r'^.*\[(\s.*\s|\s.*|.*\s)\].*$', line):
+      error(filename, linenum, 'whitespace/parens', 5,
+            'there should not be spaces inside array operator []');
+
+  # there shoudl not be spaces inside if/while/for etc. ()
+  if Search(r'[if|else if|for|while|switch]\s\(.+\)', line):
+    if Match(r'^.*\((\s.*\s|\s.*|.*\s)\).*$', line):
+      error(filename, linenum, 'whitespace/parens', 5,
+            'there should not be spaces inside parents ()');
+
+
 def CheckOperatorSpacing(filename, clean_lines, linenum, error):
   """Checks for horizontal spacing around operators.
 
