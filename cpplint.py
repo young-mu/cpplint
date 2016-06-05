@@ -4226,6 +4226,42 @@ def CheckAltTokens(filename, clean_lines, linenum, error):
               _ALT_TOKEN_REPLACEMENT[match.group(1)], match.group(1)))
 
 
+def CheckFunctionReturn(filename, clean_lines, linenum, error):
+  """Check if there is return at the end of void function.
+
+  Args:
+    filename: The name of the current file.
+    clean_lines: A CleansedLines instance containing the file.
+    linenum: The number of the line to check.
+    error: The function to call with any errors found.
+  """
+  line = clean_lines.elided[linenum]
+
+  if Search(r'return', line):
+    if Match(r'^(\s+)return;$', line):
+      next_line = clean_lines.elided[linenum + 1]
+      if Match(r'^\s*}$', next_line):
+        error(filename, linenum, 'readability/extra_return', 5,
+              'extra return at the end of void function')
+
+def CheckSwitchIndent(filename, clean_lines, linenum, error):
+  """Check switch/case indent.
+
+  Args:
+    filename: The name of the current file.
+    clean_lines: A CleansedLines instance containing the file.
+    linenum: The number of the line to check.
+    error: The function to call with any errors found.
+  """
+  line = clean_lines.elided[linenum]
+
+  if Search(r'switch', line):
+    next_line = clean_lines.elided[linenum + 1]
+    if line.index('switch') == next_line.index('case'):
+      error(filename, linenum, 'readability/indent', 5,
+            'switch/case should not have the same indent')
+
+
 def GetLineWidth(line):
   """Determines the width of the line in column positions.
 
@@ -4363,6 +4399,8 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, nesting_state,
   CheckSpacingForFunctionCall(filename, clean_lines, linenum, error)
   CheckCheck(filename, clean_lines, linenum, error)
   CheckAltTokens(filename, clean_lines, linenum, error)
+  CheckFunctionReturn(filename, clean_lines, linenum, error)
+  CheckSwitchIndent(filename, clean_lines, linenum, error)
   classinfo = nesting_state.InnermostClass()
   if classinfo:
     CheckSectionSpacing(filename, clean_lines, classinfo, linenum, error)
