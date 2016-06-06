@@ -833,6 +833,11 @@ class _CppLintState(object):
     # "emacs" - format that emacs can parse (default)
     # "vs7" - format that Microsoft Visual Studio 7 can parse
     self.output_format = 'emacs'
+    self.silent_mode = False
+
+  def SetSilentMode(self, silent_mode):
+    """Sets the silent mode."""
+    self.silent_mode = silent_mode
 
   def SetOutputFormat(self, output_format):
     """Sets the output format for errors."""
@@ -913,6 +918,11 @@ _cpplint_state = _CppLintState()
 def _OutputFormat():
   """Gets the module's output format."""
   return _cpplint_state.output_format
+
+
+def _SetSilentMode(silent_mode):
+  """Sets the module's silent mode."""
+  _cpplint_state.SetSilentMode(silent_mode)
 
 
 def _SetOutputFormat(output_format):
@@ -6001,11 +6011,12 @@ def ProcessConfigOverrides(filename):
             if base_name:
               pattern = re.compile(val)
               if pattern.match(base_name):
-                sys.stderr.write('Ignoring "%s": file excluded by "%s". '
-                                 'File path component "%s" matches '
-                                 'pattern "%s"\n' %
-                                 (filename, cfg_file, base_name, val))
-                return False
+                if _cpplint_state.silent_mode == False:
+                  sys.stderr.write('Ignoring "%s": file excluded by "%s". '
+                                   'File path component "%s" matches '
+                                   'pattern "%s"\n' %
+                                   (filename, cfg_file, base_name, val))
+                  return False
           elif name == 'linelength':
             global _line_length
             try:
@@ -6093,8 +6104,9 @@ def ProcessFile(filename, vlevel, extra_check_functions=[]):
   # When reading from stdin, the extension is unknown, so no cpplint tests
   # should rely on the extension.
   if filename != '-' and file_extension not in _valid_extensions:
-    sys.stderr.write('Ignoring %s; not a valid file name '
-                     '(%s)\n' % (filename, ', '.join(_valid_extensions)))
+    if _cpplint_state.silent_mode == False:
+      sys.stderr.write('Ignoring %s; not a valid file name '
+                       '(%s)\n' % (filename, ', '.join(_valid_extensions)))
   else:
     ProcessFileData(filename, file_extension, lines, Error,
                     extra_check_functions)
@@ -6155,7 +6167,7 @@ def ParseArguments(args):
     The list of filenames to lint.
   """
   try:
-    (opts, filenames) = getopt.getopt(args, '', ['help', 'output=', 'verbose=',
+    (opts, filenames) = getopt.getopt(args, '', ['help', 'silent', 'output=', 'verbose=',
                                                  'counting=',
                                                  'filter=',
                                                  'root=',
@@ -6168,10 +6180,13 @@ def ParseArguments(args):
   output_format = _OutputFormat()
   filters = ''
   counting_style = ''
+  silent_mode = False
 
   for (opt, val) in opts:
     if opt == '--help':
       PrintUsage(None)
+    elif opt == '--silent':
+      silent_mode = True;
     elif opt == '--output':
       if val not in ('emacs', 'vs7', 'eclipse'):
         PrintUsage('The only allowed output formats are emacs, vs7 and eclipse.')
@@ -6205,6 +6220,7 @@ def ParseArguments(args):
   if not filenames:
     PrintUsage('No files were specified.')
 
+  _SetSilentMode(silent_mode)
   _SetOutputFormat(output_format)
   _SetVerboseLevel(verbosity)
   _SetFilters(filters)
