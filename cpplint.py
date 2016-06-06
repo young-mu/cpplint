@@ -3696,15 +3696,15 @@ def CheckBraces(filename, clean_lines, linenum, error):
   line = clean_lines.elided[linenum]        # get rid of comments and strings
 
   # If it's a function the open brace must start a line
-  if Match(r'^.*([_a-zA-Z]\w+)\(.+\)\s{$', line):
+  if Match(r'^.*([_a-zA-Z]\w+)\(.+\)\s{$', line) and line.count('(') == 1:
     if line.count('(') == line.count(')'):
       error(filename, linenum, 'whitespace/braces', 4,
             '{ should start new one line if it\'s a function')
 
   # should add {} after if/else if/else
-  if Search(r'(if|else if|else)', line):
+  if Search(r'(if|else if|else)', line) and not Search(r'(#if|#else)', line):
     if Match(r'^.*[if|else if]\s\(.+\).*$', line) or Match(r'^.*else.*$', line):
-      if line.find('{') == -1:
+      if line.count('(') == line.count(')') and line.find('{') == -1:
         error(filename, linenum, 'whitespace/braces', 4,
               'should add { after if/else if/else even if only one line expression')
 
