@@ -2872,7 +2872,8 @@ def CheckSpacingForFunctionCall(filename, clean_lines, linenum, error):
               'Extra space before ( in function call')
       else:
         previous_line = clean_lines.elided[linenum - 1]
-        if not Search(r'#define', previous_line):
+        if (not Search(r'#define', previous_line) and
+           not GetMostPreviousNonBlankLine(clean_lines, linenum)[0].find('#define') != -1):
           error(filename, linenum, 'whitespace/parens', 4,
                 'Extra space before ( in function call')
     # If the ) is followed only by a newline or a { + newline, assume it's
@@ -5225,7 +5226,7 @@ def CheckCasts(filename, clean_lines, linenum, file_extension, error):
             matched_type)
 
   if not expecting_function:
-    if file_extension != 'c':
+    if file_extension != 'c' and file_extension != 'h':
       CheckCStyleCast(filename, clean_lines, linenum, 'static_cast',
                       r'\((int|float|double|bool|char|u?int(16|32|64))\)', error)
 
@@ -5239,7 +5240,7 @@ def CheckCasts(filename, clean_lines, linenum, file_extension, error):
   else:
     # Check pointer casts for other than string constants
     # ignore C style cast check if it's a C source file
-    if file_extension != 'c':
+    if file_extension != 'c' and file_extension != 'h':
         CheckCStyleCast(filename, clean_lines, linenum, 'reinterpret_cast',
                         r'\((\w+\s?\*+\s?)\)', error)
 
