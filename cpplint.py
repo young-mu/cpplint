@@ -5197,8 +5197,9 @@ def CheckCasts(filename, clean_lines, linenum, file_extension, error):
             matched_type)
 
   if not expecting_function:
-    CheckCStyleCast(filename, clean_lines, linenum, 'static_cast',
-                    r'\((int|float|double|bool|char|u?int(16|32|64))\)', error)
+    if file_extension != 'c':
+      CheckCStyleCast(filename, clean_lines, linenum, 'static_cast',
+                      r'\((int|float|double|bool|char|u?int(16|32|64))\)', error)
 
   # This doesn't catch all cases. Consider (const char * const)"hello".
   #
