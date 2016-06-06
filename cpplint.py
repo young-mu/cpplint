@@ -2871,8 +2871,10 @@ def CheckSpacingForFunctionCall(filename, clean_lines, linenum, error):
         error(filename, linenum, 'whitespace/parens', 0,
               'Extra space before ( in function call')
       else:
-        error(filename, linenum, 'whitespace/parens', 4,
-              'Extra space before ( in function call')
+        previous_line = clean_lines.elided[linenum - 1]
+        if not Search(r'#define', previous_line):
+          error(filename, linenum, 'whitespace/parens', 4,
+                'Extra space before ( in function call')
     # If the ) is followed only by a newline or a { + newline, assume it's
     # part of a control statement (if/while/etc), and don't complain
     if Search(r'[^)]\s+\)\s*[^{\s]', fncall):
@@ -3683,6 +3685,31 @@ def GetPreviousNonBlankLine(clean_lines, linenum):
   return ('', -1)
 
 
+def GetMostPreviousNonBlankLine(clean_lines, linenum):
+  """Return the most previous non-blank line and its line number.
+
+  Args:
+    clean_lines: A CleansedLines instance containing the file contents.
+    linenum: The number of the line to check.
+
+  Returns:
+    A tuple with two elements.  The first element is the contents of the most previous
+    non-blank line before the current line, or the empty string if this is the
+    first non-blank line.  The second is the line number of that line, or -1
+    if this is the first non-blank line.
+  """
+
+  prevlinenum = linenum - 1
+  while prevlinenum >= 0:
+    curlinenum = prevlinenum + 1
+    curline = clean_lines.elided[curlinenum]
+    prevline = clean_lines.elided[prevlinenum]
+    if IsBlankLine(prevline):     # if not a blank line...
+      return (curline, curlinenum)
+    prevlinenum -= 1
+  return ('', -1)
+
+
 def CheckBraces(filename, clean_lines, linenum, error):
   """Looks for misplaced braces (e.g. at the end of line).
 
@@ -4346,7 +4373,8 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, nesting_state,
       (initial_spaces % 4 != 0) and
       not Match(scope_or_label_pattern, cleansed_line) and
       not (clean_lines.raw_lines[linenum] != line and
-           Match(r'^\s*""', line))):
+           Match(r'^\s*""', line)) and
+      GetMostPreviousNonBlankLine(clean_lines, linenum)[0].find('#define') == -1):
     error(filename, linenum, 'whitespace/indent', 3,
           'Weird number of spaces at line-start.  '
           'Are you using a 4-space indent?')
