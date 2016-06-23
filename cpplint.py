@@ -3210,17 +3210,17 @@ def CheckSpacing(filename, clean_lines, linenum, nesting_state, error):
     error(filename, linenum, 'whitespace/forcolon', 2,
           'Missing space around colon in range-based for loop')
 
-  # * should be close to function or variable name
+  # * should be close to variable type
   if Search(r'\*', line):
-    if Match(r'(.*)\*\s([_a-zA-Z]\w*.*)$', line):
+    if Match(r'^.*([_a-zA-Z]\w*)\s\*+([_a-zA-Z]\w*.*)$', line):
       error(filename, linenum, 'whitespace/space', 5,
-            '* should be close to function or variable name')
+            '* should be close to variable type')
 
-  # * should not be close to varibale type when casting
+  # * should be close to varibale type when casting
   if Search(r'\(.*\*\)', line):
-    if Match(r'^.*\([_a-zA-Z]\w*\*\).*$', line):
+    if Match(r'^.*[_a-zA-Z]+\s\*+\).*$', line):
       error(filename, linenum, 'whitespace/space', 5,
-            '* should not be close to variable type when casting')
+            '* should be close to variable type when casting')
 
   # there should not be any spaces after ) when casting
   if Search(r'=\s\(.*\)', line):
