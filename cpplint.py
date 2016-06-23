@@ -4284,7 +4284,7 @@ def CheckFunctionReturn(filename, clean_lines, linenum, error):
   if Search(r'return', line):
     if Match(r'^(\s+)return;$', line):
       next_line = clean_lines.elided[linenum + 1]
-      if Match(r'^\s*}$', next_line):
+      if Match(r'^}$', next_line):
         error(filename, linenum, 'readability/extra_return', 5,
               'extra return at the end of void function')
 
