@@ -5290,11 +5290,11 @@ def CheckCasts(filename, clean_lines, linenum, file_extension, error):
             ('Are you taking an address of something dereferenced '
              'from a cast?  Wrapping the dereferenced expression in '
              'parentheses will make the binding more obvious'))
-    else:
-      error(filename, linenum, 'runtime/casting', 4,
-            ('Are you taking an address of a cast?  '
-             'This is dangerous: could be a temp var.  '
-             'Take the address before doing the cast, rather than after'))
+#    else:
+#      error(filename, linenum, 'runtime/casting', 4,
+#            ('Are you taking an address of a cast?  '
+#             'This is dangerous: could be a temp var.  '
+#             'Take the address before doing the cast, rather than after'))
 
 
 def CheckCStyleCast(filename, clean_lines, linenum, cast_type, pattern, error):
